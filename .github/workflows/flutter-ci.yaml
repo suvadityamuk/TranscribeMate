@@ -1,0 +1,44 @@
+name: Flutter CI
+
+on:
+  push:
+  pull_request:
+    types: ['opened', 'reopened']
+
+env:
+  BUILD_CONFIGURATION: Debug
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out the pushed code
+        uses: actions/checkout@v3
+
+      - name: Set-up java environment
+        uses: actions/setup-java@v1
+        with:
+          java-version: '12.x'
+
+      - name: Set-up Flutter environment
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.0.5'
+          channel: 'stable'
+          cache: true // 2
+
+      - name: Install required packages using pubspec.yaml
+        run: flutter pub get
+
+      - name: Format Flutter app code
+        run: flutter format --set-exit-if-changed .
+
+      - name: Analyze Dart code for errors
+        run: flutter analyze .
+
+      - name: Run all unit and other defined tests
+        run: flutter test
+
+      - name: Build APK for Android
+        run: flutter build apk --debug
+# on: push    # Default will running for every branch.
